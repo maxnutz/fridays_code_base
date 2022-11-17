@@ -12,17 +12,17 @@ while True:
 
 	time.sleep(random.randint(4,20))
 	
-	cookies = web.find_element_by_xpath('//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"]')
-	cookies.click()
+	#cookies = web.find_element_by_xpath('//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"]')
+	#cookies.click()
 	
-	time.sleep(2)
+	#time.sleep(2)
 	
-	gruenraum = web.find_element_by_xpath('/html/body/div[2]/div[1]/article[1]/div[3]/form/div/div/div/ul/li/div[2]/span/ul/li[2]/label/span[1]')
+	gruenraum = web.find_element_by_xpath('/html/body/div/div/div[2]/div/div/div[1]/div[3]/div/div[2]/div/div[2]')
 	gruenraum.click()
 	time.sleep(random.randint(3,20))
 
-	absenden = web.find_element_by_xpath('/html/body/div[2]/div[1]/article[1]/div[3]/form/div/div/div/div/a/span')
-	absenden.click()
+	#absenden = web.find_element_by_xpath('/html/body/div[2]/div[1]/article[1]/div[3]/form/div/div/div/div/a/span')
+	#absenden.click()
 
 	time.sleep(random.randint(5,33))
 	#web.save_screenshot('screen.png')
@@ -31,4 +31,3 @@ while True:
 	print('\n Sleep for ')
 	print(s)
 	time.sleep(s)
-	
