@@ -28,13 +28,10 @@ def open_website(link_website):
         raise RuntimeError(f"Website not reachable: {exc}") from exc
 
 
-
 def click_element(web, element_x_path, timeout: int = 12):
     try:
         wait = WebDriverWait(web, timeout)
-        element = wait.until(
-            EC.element_to_be_clickable((By.XPATH, element_x_path))
-        )
+        element = wait.until(EC.element_to_be_clickable((By.XPATH, element_x_path)))
         element.click()
         return 0
     except (TimeoutException, NoSuchElementException):
@@ -103,7 +100,9 @@ def click_by_locator(web, by: str, locator: str, timeout: int = 12):
         return 1
 
 
-def _try_click_in_current_context(web, by: str, locator: str, timeout: int = 12) -> bool:
+def _try_click_in_current_context(
+    web, by: str, locator: str, timeout: int = 12
+) -> bool:
     try:
         wait = WebDriverWait(web, timeout)
         element = wait.until(EC.element_to_be_clickable((by, locator)))
@@ -280,9 +279,7 @@ def load_config_section(config_file: str, config_section: str) -> dict:
         config = yaml.safe_load(fp) or {}
 
     if config_section not in config:
-        raise KeyError(
-            f"Config section '{config_section}' not found in {config_path}."
-        )
+        raise KeyError(f"Config section '{config_section}' not found in {config_path}.")
 
     section = config[config_section] or {}
     if not isinstance(section, dict):
@@ -311,27 +308,27 @@ def main():
 
     print(
         f"Loaded config section '{config_section}'. Voting for climate justice. - Enjoy!"
-        )
+    )
 
     if cookies:
         process(
-			link_website=link_website,
-			cookies_locators=cookies_locators,
-			voting_locators=voting_locators,
-			sending_locators=sending_locators,
-			cookies=True,
-			deleting_cookies=deleting_cookies,
-			extreme_mode=extreme_mode,
-		)
-    else: 
+            link_website=link_website,
+            cookies_locators=cookies_locators,
+            voting_locators=voting_locators,
+            sending_locators=sending_locators,
+            cookies=True,
+            deleting_cookies=deleting_cookies,
+            extreme_mode=extreme_mode,
+        )
+    else:
         process(
-			link_website=link_website,
-			voting_locators=voting_locators,
-			sending_locators=sending_locators,
-			cookies=False,
-			deleting_cookies=deleting_cookies,
-			extreme_mode=extreme_mode,
-		)
+            link_website=link_website,
+            voting_locators=voting_locators,
+            sending_locators=sending_locators,
+            cookies=False,
+            deleting_cookies=deleting_cookies,
+            extreme_mode=extreme_mode,
+        )
 
 
 if __name__ == "__main__":
