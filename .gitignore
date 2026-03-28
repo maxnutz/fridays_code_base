@@ -2,3 +2,8 @@ data/
 output/
 .ipynb_checkpoints/
 .vscode
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+package-lock.json

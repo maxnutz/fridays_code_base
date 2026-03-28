@@ -1,0 +1,16 @@
+{
+  "name": "vote-playwright",
+  "version": "1.0.0",
+  "description": "Vote for climate justice using Playwright (Node.js)",
+  "main": "vote.js",
+  "scripts": {
+    "vote": "node vote.js",
+    "test": "node --test test_vote.js"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
