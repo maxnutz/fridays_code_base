@@ -1,0 +1,33 @@
+[workspace]
+name = "fridays_code_base"
+version = "0.1.0"
+description = "Codebase for Fridays Niederösterreich"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = "3.12.*"
+pandas = "*"
+numpy = "*"
+scipy = "*"
+matplotlib = "*"
+openpyxl = "*"
+odfpy = "*"
+pyyaml = "*"
+requests = "*"
+tqdm = "*"
+selenium = "*"
+flask = "*"
+pypsa = "*"
+marimo = "*"
+
+[feature.dev.dependencies]
+ruff = "*"
+
+[tasks]
+fmt = "ruff format ."
+lint = "ruff check ."
+check = { depends-on = ["fmt", "lint"] }
+
+[environments]
+default = { features = ["dev"], solve-group = "default" }

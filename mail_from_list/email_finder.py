@@ -3,10 +3,11 @@
 # ausgabe: eine txt-Datei mit allen Adressen zusammen, getrennt durch Beistriche
 
 import pandas as pd
-df = pd.read_csv('Journaliste20220831.csv')
-all_address = ''
-for v in df['E-Mail-Adresse']:
-	if not pd.isna(v):
-		all_address += (v+', ')
-with open('Journaliste20220831.txt', 'w') as text_file:
-	text_file.write(all_address)
+
+df = pd.read_csv("../resources/mail_from_list/Journaliste20220831.csv")
+all_address = ""
+for v in df["E-Mail-Adresse"]:
+    if not pd.isna(v):
+        all_address += v + ", "
+with open("output/Journaliste20220831.txt", "w") as text_file:
+    text_file.write(all_address)

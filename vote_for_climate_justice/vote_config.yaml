@@ -20,3 +20,33 @@ windkraft_zwettl_meinbezirk:
     - "#didomi-notice-agree-button"
   cookies_xpaths:
     - "//button[contains(.,'Akzeptieren') or contains(.,'Zustimmen')]"
+
+windkraft_traismauer_kurier:
+  link_website: https://kurier.at/chronik/niederoesterreich/ein-ort-am-wort-orf-windraeder-traismauer-herzogenburg-sitzenberg-reidling/403142671
+  cookies: true
+  deleting_cookies: true
+  extreme_mode: false
+  cookies_selectors:
+    - "#didomi-notice-agree-button"
+    - "button[id*='didomi'][id*='agree']"
+  cookies_xpaths:
+    - "//button[@id='didomi-notice-agree-button']"
+    - "//button[contains(.,'Agree and close') or contains(.,'Akzeptieren') or contains(.,'Zustimmen')]"
+  cookies_xpath: /html/body/div[1]/div/div/div/div/div/div[3]/button[3]
+  voting_selectors:
+    - "input[name='participation_event_embed_poll[interaction_data]'][type='radio']"
+    - "[id^='pe'][id*='_participation_event_embed_poll_interaction_data_0']"
+  voting_selector: "input[name='participation_event_embed_poll[interaction_data]'][type='radio']"
+  voting_xpaths:
+    - "//input[@name='participation_event_embed_poll[interaction_data]' and @type='radio'][1]"
+    - "//form[.//button[contains(@class,'action')]]//input[@type='radio'][1]"
+    - "//form[.//button[contains(@class,'action')]]//label[1]"
+  voting_xpath: /html/body/div[1]/div/div/div/div
+  sending_selectors:
+    - "button.button.action"
+  sending_selector: "button.button.action"
+  sending_xpaths:
+    - "//button[contains(@class,'button') and contains(@class,'action') and normalize-space()='TEILNEHMEN']"
+    - "//form[.//input[@name='participation_event_embed_poll[interaction_data]']]//button[contains(@class,'action')][1]"
+    - "//form[.//input[@type='radio']]//button[@type='submit' or contains(@class,'action')][1]"
+  sending_xpath: /html/body/main/div/div[2]/section[1]/div[4]/div[1]/a[2]

@@ -1,4 +1,27 @@
-data/
-output/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# shared datasets — not checked in (keep folder structure via .gitkeep)
+/resources/*
+!/resources/.gitkeep
+!/resources/*/
+/resources/*/*
+!/resources/*/.gitkeep
+
+# per-subfolder generated outputs — not checked in (keep folders via .gitkeep)
+*/output/*
+!*/output/.gitkeep
+
+# python / tooling caches
+__pycache__/
+*.py[cod]
 .ipynb_checkpoints/
-.vscode
+__marimo__/
+.ruff_cache/
+
+# editor
+.vscode/
+
+# logs
+*.log

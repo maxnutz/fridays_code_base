@@ -3,7 +3,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    StaleElementReferenceException,
+)
 import time
 import random
 import shutil
@@ -25,7 +30,9 @@ def open_website(link_website):
         time.sleep(1)
         return web
     except Exception as exc:
-        raise RuntimeError(f"Website not reachable: {exc}") from exc
+        print(f"Error opening website: {exc}")
+        time.sleep(random.randint(20, 30))
+        return open_website(link_website)
 
 
 def click_element(web, element_x_path, timeout: int = 12):
@@ -105,10 +112,54 @@ def _try_click_in_current_context(
 ) -> bool:
     try:
         wait = WebDriverWait(web, timeout)
-        element = wait.until(EC.element_to_be_clickable((by, locator)))
-        element.click()
-        return True
-    except (TimeoutException, NoSuchElementException):
+        element = wait.until(EC.presence_of_element_located((by, locator)))
+        try:
+            web.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", element
+            )
+        except Exception:
+            pass
+
+        try:
+            clickable = wait.until(EC.element_to_be_clickable((by, locator)))
+            clickable.click()
+            return True
+        except (
+            TimeoutException,
+            NoSuchElementException,
+            ElementClickInterceptedException,
+            StaleElementReferenceException,
+        ):
+            pass
+
+        # Fallback for overlays or custom JS widgets.
+        try:
+            web.execute_script("arguments[0].click();", element)
+            return True
+        except Exception:
+            pass
+
+        # Some poll widgets react to radio state changes rather than click events.
+        try:
+            tag = (element.tag_name or "").lower()
+            input_type = (element.get_attribute("type") or "").lower()
+            if tag == "input" and input_type in {"radio", "checkbox"}:
+                web.execute_script(
+                    "arguments[0].checked = true;"
+                    "arguments[0].dispatchEvent(new Event('input', {bubbles: true}));"
+                    "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+                    element,
+                )
+                return True
+        except Exception:
+            pass
+
+        return False
+    except (
+        TimeoutException,
+        NoSuchElementException,
+        StaleElementReferenceException,
+    ):
         return False
 
 
@@ -122,6 +173,13 @@ def click_with_fallback(web, locators: List[Tuple[str, str]], timeout: int = 12)
 
     # Then try each iframe for pages that embed poll widgets.
     frames = web.find_elements(By.TAG_NAME, "iframe")
+    if not frames:
+        for _ in range(3):
+            time.sleep(1)
+            frames = web.find_elements(By.TAG_NAME, "iframe")
+            if frames:
+                break
+
     for frame_index in range(len(frames)):
         try:
             web.switch_to.default_content()
@@ -213,41 +271,44 @@ def process(
 ):
     error = 0
     while True:
-        website = open_website(link_website)
-        globals()["web"] = website
-        # accept/decline cookies if needed
-        error_cookies = 0
-        if cookies:
-            print("Accepting cookies...")
-            error_cookies = click_with_fallback(website, cookies_locators)
-        if not extreme_mode:
-            time.sleep(random.randint(1, 2))
-        # vote for climate justice
-        print("Voting for climate justice...")
-        error_voting = click_with_fallback(website, voting_locators)
-        if error_voting:
-            error += error_cookies + error_voting
+        try:
+            website = open_website(link_website)
+            globals()["web"] = website
+            # accept/decline cookies if needed
+            error_cookies = 0
+            if cookies:
+                print("Accepting cookies...")
+                error_cookies = click_with_fallback(website, cookies_locators)
+            if not extreme_mode:
+                time.sleep(random.randint(1, 2))
+            # vote for climate justice
+            print("Voting for climate justice...")
+            error_voting = click_with_fallback(website, voting_locators)
+            if error_voting:
+                error += error_cookies + error_voting
+                if deleting_cookies:
+                    print("Deleting browser-cookies on machine...")
+                    delete_cookies()
+                if not extreme_mode:
+                    time.sleep(random.randint(5, 10))
+                if error > 10:
+                    raise Exception("More than 10 errors occured during execution.")
+                continue
+            # send vote
+            if not extreme_mode:
+                time.sleep(random.randint(1, 3))
+            print("Sending vote...")
+            error_sending = click_with_fallback(website, sending_locators)
+            error += error_cookies + error_voting + error_sending
+            # delete cookies if needed
             if deleting_cookies:
                 print("Deleting browser-cookies on machine...")
                 delete_cookies()
             if not extreme_mode:
-                time.sleep(random.randint(5, 10))
-            if error > 10:
-                raise Exception("More than 10 errors occured during execution.")
-            continue
-        # send vote
-        if not extreme_mode:
-            time.sleep(random.randint(1, 3))
-        print("Sending vote...")
-        error_sending = click_with_fallback(website, sending_locators)
-        error += error_cookies + error_voting + error_sending
-        # delete cookies if needed
-        if deleting_cookies:
-            print("Deleting browser-cookies on machine...")
-            delete_cookies()
-        if not extreme_mode:
-            time.sleep(random.randint(5, 10))
-        if error > 10:
+                time.sleep(random.randint(10, 20))
+        except:
+            error += 1
+        if error > 20:
             raise Exception("More than 10 errors occured during execution.")
 
 

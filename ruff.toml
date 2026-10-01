@@ -1,0 +1,10 @@
+# Project formatter/linter config. Run `pixi run fmt` and `pixi run lint`.
+line-length = 88
+target-version = "py312"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+
+[lint]
+select = ["E", "F", "I", "W", "UP"]
