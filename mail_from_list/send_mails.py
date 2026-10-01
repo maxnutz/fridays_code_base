@@ -8,15 +8,36 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
+from pathlib import Path
 import smtplib
 import os
 import pandas as pd
 from tqdm import tqdm
 
-smtp = smtplib.SMTP("w018feeb.kasserver.com")
+
+def load_env(path: Path) -> None:
+    """Load KEY=VALUE pairs from an untracked .env file into os.environ."""
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+# Credentials live in an untracked .env next to this script (see .env.example).
+load_env(Path(__file__).resolve().parent / ".env")
+
+SMTP_HOST = os.environ.get("SMTP_HOST", "w018feeb.kasserver.com")
+SMTP_USER = os.environ["SMTP_USER"]
+SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+
+smtp = smtplib.SMTP(SMTP_HOST)
 smtp.ehlo()
 smtp.starttls()
-smtp.login("noe@fridaysforfuture.at", "Whn1E!")
+smtp.login(SMTP_USER, SMTP_PASSWORD)
 
 # Mailinhalt erstellen
 subject = "Weltweiter Klimastreik 25.3. in St. Pölten"
@@ -27,10 +48,10 @@ data = pd.read_csv("../resources/mail_from_list/SchulenNOE.csv")
 # print(data['Anrede'][1])
 for v in range(0, data.index.size):
     try:
-        smtp = smtplib.SMTP("w018feeb.kasserver.com")
+        smtp = smtplib.SMTP(SMTP_HOST)
         smtp.ehlo()
         smtp.starttls()
-        smtp.login("noe@fridaysforfuture.at", "Whn1E!")
+        smtp.login(SMTP_USER, SMTP_PASSWORD)
 
         mailinhalt = data["Anrede"][v] + " " + data["Name"][v] + ",\n\n" + text
         # print(mailinhalt)
@@ -39,9 +60,7 @@ for v in range(0, data.index.size):
         msg = MIMEMultipart()
         msg["Subject"] = subject
         msg.attach(MIMEText(mailinhalt))
-        smtp.sendmail(
-            from_addr="noe@fridaysforfuture.at", to_addrs=to, msg=msg.as_string()
-        )
+        smtp.sendmail(from_addr=SMTP_USER, to_addrs=to, msg=msg.as_string())
         smtp.quit()
     except Exception as e:
         print("Error with email ", data["E-Mail-Adresse"], ". Need again. ", e)

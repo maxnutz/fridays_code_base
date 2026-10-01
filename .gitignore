@@ -20,6 +20,9 @@ __pycache__/
 __marimo__/
 .ruff_cache/
 
+# secrets / local env
+.env
+
 # editor
 .vscode/
 
