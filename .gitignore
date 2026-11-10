@@ -8,6 +8,7 @@
 !/resources/*/
 /resources/*/*
 !/resources/*/.gitkeep
+output/*
 
 # per-subfolder generated outputs — not checked in (keep folders via .gitkeep)
 */output/*
